@@ -4,9 +4,9 @@
 * Có thể được viết dưới nhiều loại ngôn ngữ, nhưng thường là ngôn ngữ mà web đang sử dụng (VD: PHP...)
 
 ## Khái niệm lỗ hổng File Upload
-<div style="display:flex; justify-content: center;">
+<p align=center>
     <img src="./src/example.png" style="width: 60%">
-</div>
+</p>
 
 * Là lỗ hổng có thể khai thác được khi bên web server cho phép người dùng *__upload file__* lên hệ thống của server mà không triển khai các bước *__kiểm duyệt phù hợp__*
 * Kẻ tấn công có thể upload *__server-side script__* hay webshells để thực hiện RCE
@@ -38,9 +38,9 @@
 ## 1. Khai thác thông qua khâu kiểm duyệt chưa chặt chẽ
 ### a. Thông qua file type:
 * Xét trường hợp app có mục upload ảnh, kèm description cho nó và tên người dùng dưới dạng form. Trình duyệt sẽ trả về một POST request có dạng như sau sau khi gửi:
-<div style="display:flex; justify-content: center;">
+<p align=center>
     <img src="./src/1.png" style="width: 60%">
-</div>
+</p>
 
 * Phần body của request được chia thành nhiều phần khác nhau ứng với mỗi input, mỗi phần có một header ***"Content-Disposition"*** cho thông tin về input của nó và có thể có thêm header ***"Content-Type"*** (giống ở mục upload ảnh)
 * Thông thường các websites sẽ kiểm duyệt file upload thông qua ***"Content-Type"*** để check xem có đúng MIME type hay không, nhưng nếu tin tưởng hoàn toàn vào giá trị của header này có thể dẫn đến việc bypass bằng Burp Repeater
@@ -49,14 +49,14 @@
 * Ngoài ra các websites còn có cách phòng thủ khác là ***không cho thực thi*** scripts mà MIME type khác với những gì server cấu hình để thực thi. Nếu không thì sẽ trả về lỗi hoặc trả về plain text. Điều này tuy vô hiệu hóa việc tạo ra webshell lên server, nhưng có thể làm ***rò rỉ source code***
 * Nhưng việc cấu hình này có thể ***khác nhau giữa các directories***. Những directories mà lưu trữ files người dùng upload lên thì thường có khâu kiểm duyệt chặt chẽ hơn. Nhưng nếu bằng cách nào đấy có thể upload lên một directory khác mà vốn không dùng để chứa file upload, server vẫn có khả năng thực thi được file đó
 * Xét ví dụ dưới:
-<div style="display:flex; justify-content: center;">
+<p align=center>
     <img src="./src/2.png" style="width: 60%">
-</div>
+</p>
 
 * File có tên là webshell.php được upload sẽ mặc định đi vào thư mục avatars/, nơi mà khâu kiểm duyệt được thực hiện rất chặt chẽ
-<div style="display:flex; justify-content: center;">
+<p align=center>
     <img src="./src/3.png" style="width: 60%">
-</div>
+</p>
 
 * Sau khi đổi tên file như dưới, ta nhận được phản hồi là vậy, chứng tỏ file đã được upload lên thư mục cùng bậc với avatars/, nơi mà có thể khâu kiểm duyệt không còn chặt chẽ nữa
 
@@ -65,10 +65,10 @@
 
 ***Ghi đè lên file cấu hình server:***
 * Chỉ khi được cấu hình để thực thi file thì server mới làm thế. Ví dụ với server Apache, trước khi thực thi file PHP yêu cầu từ phía client, các devs cần phải cho đoạn code sau vào file /etc/apache2/apache2.conf:
-<div style="text-align:center;">
+<p align=center>
 LoadModule php_module /usr/lib/apache2/modules/libphp.so<br>
 AddType application/x-httpd-php .php
-</div>
+</p>
 
 * Apache server sẽ load cái cấu hình đó trong file có tên là .htaccess. Do vậy những file đó thường được dùng để ghi đè hoặc thêm các cài đặt tùy ý
 
@@ -83,9 +83,9 @@ AddType application/x-httpd-php .php
 ### d. Thông qua nội dung file
 * Giả sử khi upload ảnh, server có thể sẽ xác nhận một vài đặc tính đặc trưng nhất của ảnh, ví dụ như là dimensions. Một file .php thì không thể có dimensions
 * Tương tự, một vài file types luôn có những chuỗi bytes ở header hoặc footer, hay còn gọi là ***fingerprint/signature***. VD: jpeg luôn bắt đầu bằng FF D8 FF
-<div style="display:flex; justify-content: center;">
+<p align=center>
     <img src="./src/5.jpg" style="width: 60%">
-</div>
+</p>
 
 * Đây được coi là cách hiệu quả để kiểm tra file type, nhưng đương nhiên không thể là hoàn toàn được. Có một vài tools như ***ExifTool*** có thể tạo ra code bẩn bên trong metadata của một file ảnh
 

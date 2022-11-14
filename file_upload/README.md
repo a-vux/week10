@@ -1,17 +1,18 @@
 # I. Khái niệm File Upload Vulnerability
 ## Khái niệm Webshell
 * Là một dạng ***mã độc*** có thể điều khiển máy chủ nào đó từ xa bằng cách gửi HTTP requests tới đúng endpoint
-* Có thể được viết dưới nhiều loại ngôn ngữ, nhưng thường là ngôn ngữ mà web đang sử dụng (VD: PHP...)
+* Có thể được viết dưới ***nhiều loại ngôn ngữ***, nhưng thường là ***ngôn ngữ mà web đang sử dụng*** (VD: PHP...)
 
 ## Khái niệm lỗ hổng File Upload
-<p align=center>
+<div style="display:flex; justify-content: center;">
     <img src="./src/example.png" style="width: 60%">
-</p>
+</div>
 
 * Là lỗ hổng có thể khai thác được khi bên web server cho phép người dùng *__upload file__* lên hệ thống của server mà không triển khai các bước *__kiểm duyệt phù hợp__*
-* Kẻ tấn công có thể upload *__server-side script__* hay webshells để thực hiện RCE
+* Kẻ tấn công có thể upload *__server-side script__* hay ***webshells*** để thực hiện RCE
+
 ## Nguyên nhân dẫn đến lỗ hổng File Upload
-* Khâu kiểm duyệt chưa được kiểm tra kỹ càng, dễ dàng bị bypassed
+* Khâu kiểm duyệt ***chưa được kiểm tra kỹ càng***, dễ dàng bị bypassed
 * Tạo ra *__blacklist__* (có thể là kiểm duyệt extension) nhưng không xét tới *__khả năng tương thích__* (tức extension có thể bị đổi)
 * Một số *__tools__* có thể thay đổi vài thuộc tính của file khiến khâu kiểm duyệt có thể bị bypassed (Burp Proxy)
 * Kiểm duyệt *__chưa toàn vẹn__*, tức kiểm tra một thành phần kỹ lưỡng nhưng những thành phần còn lại thì hời hợt
@@ -24,7 +25,7 @@
 <br>
 
 # II. Cơ chế xử lý request các static files của server - cơ sở của File Upload Vulnerability
-* Tuy hầu hết các website giờ rất *__dynamic__* (tài nguyên mà website lấy để phục vụ cho request ở đâu đó chứ không phân tích request path rồi lấy thông tin tương ứng trong filesystem), nhưng vẫn còn các *__request for static files__* (ảnh, stylesheet...)
+* Tuy hầu hết các website giờ rất *__dynamic__* (tài nguyên mà website lấy để phục vụ cho request ở đâu đó chứ không phân tích request path rồi lấy thông tin tương ứng trong filesystem), nhưng vẫn còn các *__request__* tới *__static files__* (ảnh, stylesheet...)
 * Để xử lý các requests for static files, server *__phân tích request path__* để xác định extension, sau đó xác định file type thật bằng cách đối chiếu với *__MIME types__*. Sau đấy tùy thuộc vào file type và cấu hình của server thì sẽ có những trường hợp sau:
     * *__Non-executable file type__* (ảnh, HTML): đẩy vào response rồi gửi cho client
     * *__Executable file type__* (php):
@@ -38,9 +39,9 @@
 ## 1. Khai thác thông qua khâu kiểm duyệt chưa chặt chẽ
 ### a. Thông qua file type:
 * Xét trường hợp app có mục upload ảnh, kèm description cho nó và tên người dùng dưới dạng form. Trình duyệt sẽ trả về một POST request có dạng như sau sau khi gửi:
-<p align=center>
+<div style="display:flex; justify-content: center;">
     <img src="./src/1.png" style="width: 60%">
-</p>
+</div>
 
 * Phần body của request được chia thành nhiều phần khác nhau ứng với mỗi input, mỗi phần có một header ***"Content-Disposition"*** cho thông tin về input của nó và có thể có thêm header ***"Content-Type"*** (giống ở mục upload ảnh)
 * Thông thường các websites sẽ kiểm duyệt file upload thông qua ***"Content-Type"*** để check xem có đúng MIME type hay không, nhưng nếu tin tưởng hoàn toàn vào giá trị của header này có thể dẫn đến việc bypass bằng Burp Repeater
@@ -49,14 +50,14 @@
 * Ngoài ra các websites còn có cách phòng thủ khác là ***không cho thực thi*** scripts mà MIME type khác với những gì server cấu hình để thực thi. Nếu không thì sẽ trả về lỗi hoặc trả về plain text. Điều này tuy vô hiệu hóa việc tạo ra webshell lên server, nhưng có thể làm ***rò rỉ source code***
 * Nhưng việc cấu hình này có thể ***khác nhau giữa các directories***. Những directories mà lưu trữ files người dùng upload lên thì thường có khâu kiểm duyệt chặt chẽ hơn. Nhưng nếu bằng cách nào đấy có thể upload lên một directory khác mà vốn không dùng để chứa file upload, server vẫn có khả năng thực thi được file đó
 * Xét ví dụ dưới:
-<p align=center>
+<div style="display:flex; justify-content: center;">
     <img src="./src/2.png" style="width: 60%">
-</p>
+</div>
 
 * File có tên là webshell.php được upload sẽ mặc định đi vào thư mục avatars/, nơi mà khâu kiểm duyệt được thực hiện rất chặt chẽ
-<p align=center>
+<div style="display:flex; justify-content: center;">
     <img src="./src/3.png" style="width: 60%">
-</p>
+</div>
 
 * Sau khi đổi tên file như dưới, ta nhận được phản hồi là vậy, chứng tỏ file đã được upload lên thư mục cùng bậc với avatars/, nơi mà có thể khâu kiểm duyệt không còn chặt chẽ nữa
 
@@ -65,17 +66,17 @@
 
 ***Ghi đè lên file cấu hình server:***
 * Chỉ khi được cấu hình để thực thi file thì server mới làm thế. Ví dụ với server Apache, trước khi thực thi file PHP yêu cầu từ phía client, các devs cần phải cho đoạn code sau vào file /etc/apache2/apache2.conf:
-<p align=center>
+<div style="text-align:center;">
 LoadModule php_module /usr/lib/apache2/modules/libphp.so<br>
 AddType application/x-httpd-php .php
-</p>
+</div>
 
 * Apache server sẽ load cái cấu hình đó trong file có tên là .htaccess. Do vậy những file đó thường được dùng để ghi đè hoặc thêm các cài đặt tùy ý
 
 ***Sử dụng cái file ext "gây lú" (obfuscating file ext):***
 * Giả sử khâu kiểm duyệt là case-sensitive (phân biệt chữ hoa chữ thường) thì nó sẽ không nhận ra .PhP là .php. Nhưng 
 * Có một vài kỹ thuật "gây lú" khâu kiểm duyệt như sau:
-    * Pha trộn ***nhiều ext***: ví dụ .php.jpg
+    * Pha trộn ***nhiều ext***: ví dụ .php.jpg. Nhưng cần kết hợp với null byte injection thì file mới thực thi được
     * Sử dụng ***mã hóa URL***: sử dụng khi khâu kiểm duyệt không decode nhưng bên server thực thi thì lại decode
     * Sử dụng ***dấu chấm phẩy*** hoặc ký tự ***null byte*** được mã hóa URL để dừng việc xử lý chuỗi (ở đây là xử lý filename)
 * Những cách trên đều có cách phòng chống như loại bỏ các ext nguy hiểm trong filename
@@ -83,9 +84,9 @@ AddType application/x-httpd-php .php
 ### d. Thông qua nội dung file
 * Giả sử khi upload ảnh, server có thể sẽ xác nhận một vài đặc tính đặc trưng nhất của ảnh, ví dụ như là dimensions. Một file .php thì không thể có dimensions
 * Tương tự, một vài file types luôn có những chuỗi bytes ở header hoặc footer, hay còn gọi là ***fingerprint/signature***. VD: jpeg luôn bắt đầu bằng FF D8 FF
-<p align=center>
+<div style="display:flex; justify-content: center;">
     <img src="./src/5.jpg" style="width: 60%">
-</p>
+</div>
 
 * Đây được coi là cách hiệu quả để kiểm tra file type, nhưng đương nhiên không thể là hoàn toàn được. Có một vài tools như ***ExifTool*** có thể tạo ra code bẩn bên trong metadata của một file ảnh
 

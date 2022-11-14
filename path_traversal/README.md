@@ -1,6 +1,7 @@
 # Khái niệm Path Traversal Attack
 * Tên gọi khác: Directory Traversal
 * Là một lỗ hổng cho phép kẻ tấn công ***đọc được file trong server*** như source code, dữ liệu, file hệ thống, file dữ liệu người dùng... bằng cách điều chỉnh giá trị của các param lấy dữ liệu qua các ***chuỗi traversal*** "../" hoặc "..\\" (trên Windows)
+* Là nền tảng để thực hiện RCE do việc đọc được các files quan trọng sẽ làm kẻ tấn công có được thông tin về server để có thể khai thác các lỗ hổng khác
 <div style="display:flex; justify-content: center;">
     <img src="./src/example.png" style="width: 90%">
 </div>
@@ -36,4 +37,4 @@
 <input type="checkbox"> https://portswigger.net/web-security/file-path-traversal<br>
 <input type="checkbox">https://owasp.org/www-community/attacks/Path_Traversal<br>
 <input type="checkbox">https://viblo.asia/p/tan-cong-path-traversal-va-cach-thuc-phong-thu-bJzKmO7wl9N<br>
-<input type="checkbox">https://www.acunetix.com/blog/articles/path-traversal/<br>
+<input type="checkbox">https://www.acunetix.com/blog/articles/path-traversal/<br><input type="checkbox">https://www.getsecureworld.com/blog/directory-path-traversal-vs-file-inclusion-vulnerabilities/<br>
